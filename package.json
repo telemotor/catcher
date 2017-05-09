@@ -31,5 +31,6 @@
     "analytics"
   ],
   "author": "Vadim Shashin",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {}
 }
