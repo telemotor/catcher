@@ -1,8 +1,8 @@
 {
-  "name": "webpack-library-starter",
+  "name": "catcher",
   "version": "0.3.0",
-  "description": "Produce universal library with webpack and es6",
-  "main": "lib/library.js",
+  "description": "Whole page clicks catcher",
+  "main": "lib/catcher.js",
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
@@ -25,15 +25,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/krasimir/webpack-library-starter.git"
+    "url": "https://github.com/telemotor/catcher.git"
   },
   "keywords": [
     "analytics"
   ],
   "author": "Vadim Shashin",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/krasimir/webpack-library-starter/issues"
-  },
-  "homepage": "https://github.com/krasimir/webpack-library-starter"
+  "license": "MIT"
 }
