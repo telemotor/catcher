@@ -32,5 +32,7 @@
   ],
   "author": "Vadim Shashin",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "uuid": "^3.0.1"
+  }
 }

@@ -1,7 +1,19 @@
+import v4 from '../node_modules/uuid/v4';
+
 export default class Catcher {
   constructor(telemotorUrl) {
     this.telemotorUrl = telemotorUrl;
+    this.customUserId = '';
+    this.makeUserId();
     this.trackPageView();
+  }
+
+  setCustomUserId(id) {
+    this.customUserId = id;
+  }
+
+  getCustomUserId() {
+    return this.customUserId;
   }
 
   getXPath(element) {
@@ -17,23 +29,82 @@ export default class Catcher {
     return xpath;
   }
 
+  makeUserId() {
+    if (this.getUserId() === null) {
+      this.createCookie('tid', v4(), 2048);
+    }
+  }
+
+  getUserId() {
+    return this.readCookie('tid');
+  }
+
+  createCookie(name, value, days) {
+    let expires;
+
+    if (days) {
+      let date = new Date();
+
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = '; expires=' + date.toGMTString();
+    } else {
+      expires = '';
+    }
+    document.cookie = name + '=' + value + expires + '; path=/';
+  }
+
+  // Read cookie
+  readCookie(name) {
+    let nameEQ = name + '=';
+    let ca = document.cookie.split(';');
+
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1, c.length);
+      }
+      if (c.indexOf(nameEQ) === 0) {
+        return c.substring(nameEQ.length, c.length);
+      }
+    }
+    return null;
+  }
+
   startWatch() {
     let self = this;
 
     document.addEventListener('click', function (e) {
-      console.log(self.getXPath(e.target));
-      self.sendClick(self.getXPath(e.target), location.href, e.pageX, e.pageY);
+      self.sendClick(e);
     });
   }
 
-  sendClick(xpath, href, x, y) {
+  sendClick(e) {
     let body = {
-      xpath: xpath,
-      href: href,
-      x: x,
-      y: y
+      xpath: this.getXPath(e.target),
+      href: location.href,
+      userid: this.getUserId(),
+      customuserid: this.getCustomUserId(),
+      x: e.pageX,
+      y: e.pageY
     };
 
+    this.sendResuest('/api/click', body);
+  }
+
+  trackPageView() {
+    let body = {
+      href: location.href,
+      userid: this.getUserId(),
+      customuserid: this.getCustomUserId()
+    };
+
+    this.sendResuest('/api/pageview', body);
+  }
+
+  sendResuest(uri, body) {
+    console.log(uri);
+    console.log(body);
     body = Object.keys(body).map(function (key) {
       return key + '=' + body[key];
     }).join('&');
@@ -49,14 +120,11 @@ export default class Catcher {
       body: body
     };
 
-    fetch(this.telemotorUrl + '/api/click', init).then(function (response) {
+    // TOOD: return promise
+    fetch(this.telemotorUrl + uri, init).then(function (response) {
       console.log(response);
     }).catch(function (error) {
       console.log(error);
     });
-  }
-
-  trackPageView() {
-    console.log(location.href);
   }
 }
