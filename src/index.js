@@ -5,6 +5,7 @@ export default class Catcher {
     this.telemotorUrl = telemotorUrl;
     this.customUserId = '';
     this.makeUserId();
+    this.makeSession();
     this.trackPageView();
   }
 
@@ -31,7 +32,8 @@ export default class Catcher {
 
   makeUserId() {
     if (this.getUserId() === null) {
-      this.createCookie('tid', v4(), 2048);
+      // 2048 days
+      this.createCookie('tid', v4(), 2048 * 24 * 60 * 60 * 1000);
     }
   }
 
@@ -39,13 +41,24 @@ export default class Catcher {
     return this.readCookie('tid');
   }
 
-  createCookie(name, value, days) {
+  makeSession() {
+    if (this.getSession() === null) {
+      // 1 minute
+      this.createCookie('tsid', v4(), 300000);
+    }
+  }
+
+  getSession() {
+    return this.readCookie('tsid');
+  }
+
+  createCookie(name, value, millis) {
     let expires;
 
-    if (days) {
+    if (millis) {
       let date = new Date();
 
-      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      date.setTime(date.getTime() + millis);
       expires = '; expires=' + date.toGMTString();
     } else {
       expires = '';
@@ -85,10 +98,12 @@ export default class Catcher {
       href: location.href,
       userid: this.getUserId(),
       customuserid: this.getCustomUserId(),
+      sessionid: this.getSession(),
       x: e.pageX,
       y: e.pageY
     };
 
+    this.makeSession();
     this.sendResuest('/api/click', body);
   }
 
@@ -96,9 +111,11 @@ export default class Catcher {
     let body = {
       href: location.href,
       userid: this.getUserId(),
-      customuserid: this.getCustomUserId()
+      customuserid: this.getCustomUserId(),
+      sessionid: this.getSession()
     };
 
+    this.makeSession();
     this.sendResuest('/api/pageview', body);
   }
 
